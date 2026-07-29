@@ -5,12 +5,26 @@ let admin = null;
 function getFirebaseAdmin() {
   if (admin) return admin;
 
-  const sdkPath = process.env.FIREBASE_ADMIN_SDK_PATH;
-  if (!sdkPath) return null;
-
   try {
-    const path = require('path');
-    const serviceAccount = require(path.resolve(sdkPath));
+    let serviceAccount;
+
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+      // Preferred on hosting platforms (Railway, etc.): full JSON as one env var
+      serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+    } else if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
+      serviceAccount = {
+        project_id: process.env.FIREBASE_PROJECT_ID,
+        private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        client_email: process.env.FIREBASE_CLIENT_EMAIL,
+      };
+    } else if (process.env.FIREBASE_ADMIN_SDK_PATH) {
+      // Local dev: path to the downloaded service account JSON file
+      const path = require('path');
+      serviceAccount = require(path.resolve(process.env.FIREBASE_ADMIN_SDK_PATH));
+    } else {
+      return null;
+    }
+
     admin = require('firebase-admin');
     if (!admin.apps.length) {
       admin.initializeApp({
