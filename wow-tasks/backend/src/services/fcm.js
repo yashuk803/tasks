@@ -55,7 +55,7 @@ async function sendPushToUsers(userIds, payload, excludeUserId = null) {
   const tokenList = tokens.map(t => t.token);
 
   try {
-    await fb.messaging().sendEachForMulticast({
+    const result = await fb.messaging().sendEachForMulticast({
       tokens: tokenList,
       notification: {
         title: payload.title,
@@ -65,6 +65,13 @@ async function sendPushToUsers(userIds, payload, excludeUserId = null) {
       webpush: {
         fcmOptions: { link: payload.link || '/' },
       },
+    });
+
+    console.log(`[FCM] Sent to ${tokenList.length} token(s): ${result.successCount} succeeded, ${result.failureCount} failed`);
+    result.responses.forEach((r, i) => {
+      if (!r.success) {
+        console.warn(`[FCM] Token failed (${tokenList[i].slice(0, 12)}...): ${r.error?.code} — ${r.error?.message}`);
+      }
     });
   } catch (e) {
     console.error('FCM send error:', e.message);
