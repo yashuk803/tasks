@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import Select from 'react-select';
 import { useTask, useCreateTask, useUpdateTask, useUploadAttachment } from '../hooks/useTasks';
 import { useUsers } from '../hooks/useUsers';
-import { useDepartments } from '../hooks/useDepartments';
 import Spinner from '../components/ui/Spinner';
 
 const STATUSES = ['NEW', 'IN_PROGRESS', 'REVIEW', 'DONE', 'CANCELLED'];
@@ -17,6 +17,20 @@ const empty = {
   dueDate: '',
   departmentId: '',
   assigneeIds: [],
+  responsibleId: '',
+};
+
+const selectStyles = {
+  control: (base, state) => ({
+    ...base,
+    minHeight: '42px',
+    borderRadius: '0.5rem',
+    borderColor: state.isFocused ? '#1d5d86' : '#d1d5db',
+    boxShadow: state.isFocused ? '0 0 0 2px rgba(29, 93, 134, 0.5)' : 'none',
+    '&:hover': { borderColor: state.isFocused ? '#1d5d86' : '#d1d5db' },
+  }),
+  valueContainer: (base) => ({ ...base, padding: '2px 12px' }),
+  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
 export default function TaskFormPage() {
@@ -27,7 +41,6 @@ export default function TaskFormPage() {
 
   const { data: existing, isLoading: loadingTask } = useTask(id);
   const { data: users = [] } = useUsers();
-  const { data: departments = [] } = useDepartments();
   const createTask = useCreateTask();
   const updateTask = useUpdateTask();
   const uploadAttachment = useUploadAttachment();
@@ -36,8 +49,14 @@ export default function TaskFormPage() {
   const [files, setFiles] = useState([]);
   const [error, setError] = useState('');
 
+  const userOptions = useMemo(
+    () => users.map((u) => ({ value: u.id, label: `${u.firstName} ${u.lastName}` })),
+    [users]
+  );
+
   useEffect(() => {
     if (existing) {
+      const assigneeIds = existing.assignees?.map((a) => a.userId) ?? [];
       setForm({
         title: existing.title ?? '',
         description: existing.description ?? '',
@@ -45,27 +64,46 @@ export default function TaskFormPage() {
         status: existing.status ?? 'NEW',
         dueDate: existing.dueDate ? existing.dueDate.slice(0, 10) : '',
         departmentId: existing.departmentId ?? '',
-        assigneeIds: existing.assignees?.map((a) => a.userId) ?? [],
+        assigneeIds,
+        responsibleId: assigneeIds[0] ?? '',
       });
     }
   }, [existing]);
 
   const set = (key, value) => setForm((f) => ({ ...f, [key]: value }));
 
-  const toggleAssignee = (uid) => {
-    setForm((f) => ({
-      ...f,
-      assigneeIds: f.assigneeIds.includes(uid)
-        ? f.assigneeIds.filter((x) => x !== uid)
-        : [...f.assigneeIds, uid],
-    }));
+  const handleResponsibleChange = (option) => {
+    const responsibleId = option ? option.value : '';
+    const selectedUser = users.find((u) => u.id === responsibleId);
+    setForm((f) => {
+      const assigneeIds = responsibleId && !f.assigneeIds.includes(responsibleId)
+        ? [...f.assigneeIds, responsibleId]
+        : f.assigneeIds;
+      return {
+        ...f,
+        responsibleId,
+        departmentId: selectedUser ? selectedUser.departmentId ?? '' : f.departmentId,
+        assigneeIds,
+      };
+    });
+  };
+
+  const handleAssigneesChange = (options) => {
+    let assigneeIds = (options || []).map((o) => o.value);
+    setForm((f) => {
+      if (f.responsibleId && !assigneeIds.includes(f.responsibleId)) {
+        assigneeIds = [...assigneeIds, f.responsibleId];
+      }
+      return { ...f, assigneeIds };
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    const { responsibleId, ...rest } = form;
     const payload = {
-      ...form,
+      ...rest,
       dueDate: form.dueDate || null,
       departmentId: form.departmentId || null,
     };
@@ -148,30 +186,29 @@ export default function TaskFormPage() {
         </div>
 
         <div>
-          <label className="label">{t('task.department')}</label>
-          <select className="input" value={form.departmentId} onChange={(e) => set('departmentId', e.target.value)}>
-            <option value="">{t('common.all')}</option>
-            {departments.map((d) => (
-              <option key={d.id} value={d.id}>{d.name}</option>
-            ))}
-          </select>
+          <label className="label">{t('task.responsible')}</label>
+          <Select
+            options={userOptions}
+            value={userOptions.find((o) => o.value === form.responsibleId) || null}
+            onChange={handleResponsibleChange}
+            placeholder={t('task.responsiblePlaceholder')}
+            isClearable
+            styles={selectStyles}
+            menuPortalTarget={document.body}
+          />
         </div>
 
         <div>
           <label className="label">{t('task.assignees')}</label>
-          <div className="border border-gray-300 rounded-lg max-h-40 overflow-y-auto p-2 flex flex-col gap-1">
-            {users.map((u) => (
-              <label key={u.id} className="flex items-center gap-2 text-sm cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={form.assigneeIds.includes(u.id)}
-                  onChange={() => toggleAssignee(u.id)}
-                  className="accent-brand-dark"
-                />
-                {u.firstName} {u.lastName}
-              </label>
-            ))}
-          </div>
+          <Select
+            options={userOptions}
+            value={userOptions.filter((o) => form.assigneeIds.includes(o.value))}
+            onChange={handleAssigneesChange}
+            placeholder={t('task.selectPlaceholder')}
+            isMulti
+            styles={selectStyles}
+            menuPortalTarget={document.body}
+          />
         </div>
 
         <div>

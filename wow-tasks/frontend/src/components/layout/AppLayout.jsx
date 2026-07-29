@@ -53,13 +53,14 @@ export default function AppLayout() {
   };
 
   return (
-    <div className="min-h-dvh flex flex-col pb-16">
+    <div className="min-h-dvh flex flex-col pb-[calc(4rem+env(safe-area-inset-bottom))]">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-brand-dark text-white px-4 py-3 flex items-center justify-between shadow-sm">
         <button
           onClick={() => navigate('/tasks')}
-          className="font-serif font-bold text-lg tracking-tight"
+          className="flex items-center gap-2 font-serif font-bold text-lg tracking-tight"
         >
+          <img src="/logo.png" alt="WOW Corporation" className="h-8 w-8 object-contain" />
           {t('app.name')}
         </button>
 

@@ -15,8 +15,9 @@ const { sendPushNotification, notifyTaskEvent } = require('../services/fcm');
 
 const router = express.Router();
 
+const uploadDir = process.env.UPLOAD_DIR ? path.join(process.env.UPLOAD_DIR, 'tasks') : path.join(__dirname, '..', '..', 'uploads', 'tasks');
 const upload = multer({
-  dest: path.join(__dirname, '..', '..', 'uploads', 'tasks'),
+  dest: uploadDir,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
 });
 

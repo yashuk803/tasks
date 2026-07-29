@@ -163,12 +163,12 @@ export default function TaskDetailPage() {
               att.mimetype.startsWith('image/') ? (
                 <a
                   key={att.id}
-                  href={`http://localhost:4000${att.url}`}
+                  href={`${import.meta.env.VITE_API_URL}${att.url}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   <img
-                    src={`http://localhost:4000${att.url}`}
+                    src={`${import.meta.env.VITE_API_URL}${att.url}`}
                     alt={att.originalName}
                     className="rounded-lg object-cover w-full max-h-48 cursor-pointer"
                   />
@@ -181,7 +181,7 @@ export default function TaskDetailPage() {
                     <p className="text-xs text-gray-400">{formatSize(att.size)}</p>
                   </div>
                   <a
-                    href={`http://localhost:4000${att.url}`}
+                    href={`${import.meta.env.VITE_API_URL}${att.url}`}
                     download={att.originalName}
                     className="btn-secondary text-xs py-1 px-2 shrink-0"
                   >
