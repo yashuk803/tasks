@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useTask, useUpdateTask, useDeleteTask, useAcceptTask, useUploadAttachment } from '../hooks/useTasks';
+import { useTask, useUpdateTask, useDeleteTask, useAcceptTask } from '../hooks/useTasks';
 import StatusBadge from '../components/tasks/StatusBadge';
 import PriorityBadge from '../components/tasks/PriorityBadge';
 import Spinner from '../components/ui/Spinner';
@@ -26,7 +26,6 @@ export default function TaskDetailPage() {
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
   const acceptTask = useAcceptTask();
-  const uploadAttachment = useUploadAttachment();
 
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -48,12 +47,6 @@ export default function TaskDetailPage() {
   const handleDelete = async () => {
     await deleteTask.mutateAsync(task.id);
     navigate(-1);
-  };
-
-  const handleUpload = (e) => {
-    if (!e.target.files?.length) return;
-    uploadAttachment.mutate({ taskId: task.id, files: e.target.files });
-    e.target.value = '';
   };
 
   return (
@@ -191,21 +184,6 @@ export default function TaskDetailPage() {
               )
             )}
           </div>
-        )}
-
-        {canEdit && (
-          <label className="btn-secondary inline-flex items-center gap-2 cursor-pointer">
-            <span>📎</span>
-            <span>{t('task.uploadFile')}</span>
-            <input
-              type="file"
-              multiple
-              accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
-              className="hidden"
-              onChange={handleUpload}
-              disabled={uploadAttachment.isPending}
-            />
-          </label>
         )}
       </div>
 

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Select from 'react-select';
-import { useTask, useCreateTask, useUpdateTask, useUploadAttachment } from '../hooks/useTasks';
+import { useTask, useCreateTask, useUpdateTask, useUploadAttachment, useDeleteAttachment } from '../hooks/useTasks';
 import { useUsers } from '../hooks/useUsers';
 import Spinner from '../components/ui/Spinner';
 
@@ -44,6 +44,7 @@ export default function TaskFormPage() {
   const createTask = useCreateTask();
   const updateTask = useUpdateTask();
   const uploadAttachment = useUploadAttachment();
+  const deleteAttachment = useDeleteAttachment();
 
   const [form, setForm] = useState(empty);
   const [files, setFiles] = useState([]);
@@ -213,6 +214,24 @@ export default function TaskFormPage() {
 
         <div>
           <label className="label">{t('task.attachments')}</label>
+          {isEdit && existing?.attachments?.length > 0 && (
+            <div className="mb-2 flex flex-col gap-1">
+              {existing.attachments.map((att) => (
+                <div key={att.id} className="text-xs text-gray-600 flex items-center gap-2">
+                  <span>📎</span>
+                  <span className="truncate flex-1">{att.originalName}</span>
+                  <button
+                    type="button"
+                    className="text-red-400 shrink-0"
+                    onClick={() => deleteAttachment.mutate({ taskId: id, attachmentId: att.id })}
+                    disabled={deleteAttachment.isPending}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
           <label className="btn-secondary inline-flex items-center gap-2 cursor-pointer">
             <span>📎</span>
             <span>{t('task.uploadFile')}</span>

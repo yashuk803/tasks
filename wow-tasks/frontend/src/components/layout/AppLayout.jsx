@@ -60,7 +60,7 @@ export default function AppLayout() {
           onClick={() => navigate('/tasks')}
           className="flex items-center gap-2 font-serif font-bold text-lg tracking-tight"
         >
-          <img src="/logo.png" alt="WOW Corporation" className="h-8 w-8 object-contain" />
+          <img src="/logo.png" alt="WOW Corporation" className="h-8 w-8 object-contain filter invert brightness-0" />
           {t('app.name')}
         </button>
 

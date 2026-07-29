@@ -54,7 +54,8 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full max-w-sm">
-        <img src="/logo.png" alt="WOW Corporation" className="h-20 w-auto mx-auto mb-4" />
+        {/* logo.png is dark blue; invert to white so it's visible on the dark brand background */}
+        <img src="/logo.png" alt="WOW Corporation" className="h-20 w-auto mx-auto mb-4 filter invert brightness-0" />
         <h1 className="font-serif text-3xl font-bold text-white text-center mb-8">
           {t('app.name')}
         </h1>

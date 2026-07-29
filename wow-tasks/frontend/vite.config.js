@@ -23,6 +23,12 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        // Merge firebase-messaging-sw.js into the generated sw.js so there is only
+        // ONE service worker controlling scope '/'. Registering two separate SWs at
+        // the same scope meant the Workbox worker (skipWaiting + clientsClaim) kept
+        // taking control away from firebase-messaging-sw.js, so background push
+        // notifications never reached it.
+        importScripts: ['firebase-messaging-sw.js'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\/api\/.*/i,

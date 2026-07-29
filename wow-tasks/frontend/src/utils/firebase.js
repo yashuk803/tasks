@@ -32,7 +32,10 @@ export async function requestPushPermission() {
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') return null;
 
-    const swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    // firebase-messaging-sw.js is bundled into the PWA's sw.js at build time
+    // (see vite.config.js workbox.importScripts), so we reuse that single
+    // registration instead of registering a second, competing service worker.
+    const swRegistration = await navigator.serviceWorker.ready;
 
     const token = await getToken(messaging, {
       vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,

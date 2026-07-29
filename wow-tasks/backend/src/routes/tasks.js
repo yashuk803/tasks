@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const prisma = require('../utils/prisma');
 const { authenticate } = require('../middleware/auth');
@@ -345,6 +346,25 @@ router.post('/:id/attachments', authenticate, upload.array('files', 5), async (r
   });
 
   res.status(201).json({ count: attachments.count });
+});
+
+// DELETE /api/tasks/:id/attachments/:attachmentId
+router.delete('/:id/attachments/:attachmentId', authenticate, async (req, res) => {
+  const task = await prisma.task.findUnique({ where: { id: req.params.id } });
+  if (!task) return res.status(404).json({ error: 'Task not found' });
+
+  const canManage = await canManageTask(req.user, task);
+  if (!canManage) return res.status(403).json({ error: 'Forbidden' });
+
+  const attachment = await prisma.attachment.findFirst({
+    where: { id: req.params.attachmentId, taskId: req.params.id },
+  });
+  if (!attachment) return res.status(404).json({ error: 'Attachment not found' });
+
+  await prisma.attachment.delete({ where: { id: attachment.id } });
+  fs.unlink(path.join(uploadDir, attachment.filename), () => {});
+
+  res.json({ message: 'Attachment deleted' });
 });
 
 module.exports = router;

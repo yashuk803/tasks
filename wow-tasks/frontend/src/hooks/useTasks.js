@@ -77,3 +77,14 @@ export function useUploadAttachment() {
     },
   });
 }
+
+export function useDeleteAttachment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ taskId, attachmentId }) => api.delete(`/tasks/${taskId}/attachments/${attachmentId}`),
+    onSuccess: (_, { taskId }) => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks', taskId] });
+    },
+  });
+}
