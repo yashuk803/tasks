@@ -1,0 +1,92 @@
+{
+  "app": { "name": "WOW Tasks" },
+  "nav": {
+    "myTasks": "Мои задачи",
+    "deptTasks": "Задачи подразделения",
+    "users": "Сотрудники",
+    "departments": "Отделы",
+    "logout": "Выйти"
+  },
+  "auth": {
+    "login": "Вход",
+    "loginPlaceholder": "Логин или email",
+    "password": "Пароль",
+    "signIn": "Войти",
+    "invalidCredentials": "Неверный логин или пароль"
+  },
+  "task": {
+    "title": "Заголовок",
+    "description": "Описание",
+    "status": "Статус",
+    "priority": "Приоритет",
+    "dueDate": "Срок",
+    "author": "Автор",
+    "assignees": "Исполнители",
+    "department": "Отдел",
+    "create": "Создать задачу",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "history": "История изменений",
+    "attachments": "Вложения",
+    "uploadFile": "Прикрепить файл",
+    "noAttachments": "Нет вложений",
+    "noTasks": "Задач нет",
+    "accept": "Взять в работу",
+    "statuses": {
+      "NEW": "Новая",
+      "IN_PROGRESS": "В работе",
+      "REVIEW": "На проверке",
+      "DONE": "Завершена",
+      "CANCELLED": "Отменена"
+    },
+    "priorities": {
+      "LOW": "Низкий",
+      "MEDIUM": "Средний",
+      "HIGH": "Высокий",
+      "URGENT": "Срочный"
+    }
+  },
+  "user": {
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "email": "Email",
+    "login": "Логин",
+    "role": "Роль",
+    "position": "Должность",
+    "department": "Отдел",
+    "create": "Создать сотрудника",
+    "edit": "Редактировать",
+    "deactivate": "Деактивировать",
+    "roles": {
+      "ADMIN": "Администратор",
+      "MANAGER": "Руководитель",
+      "EMPLOYEE": "Сотрудник"
+    }
+  },
+  "dept": {
+    "name": "Название отдела",
+    "parent": "Родительский отдел",
+    "head": "Руководитель",
+    "create": "Создать отдел",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "noParent": "Корневой отдел",
+    "dropToRoot": "Переместить в корень",
+    "moveMode": "Выберите цель"
+  },
+  "common": {
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "create": "Создать",
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "search": "Поиск",
+    "filter": "Фильтр",
+    "all": "Все",
+    "yes": "Да",
+    "no": "Нет",
+    "confirm": "Подтвердить"
+  }
+}

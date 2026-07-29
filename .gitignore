@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+*firebase-adminsdk*.json
+*serviceAccountKey*.json
+
+# Build output
+dist/
+build/
+.vite/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# Prisma
+wow-tasks/backend/prisma/dev.db

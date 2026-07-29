@@ -1,0 +1,92 @@
+{
+  "app": { "name": "WOW Tasks" },
+  "nav": {
+    "myTasks": "המשימות שלי",
+    "deptTasks": "משימות המחלקה",
+    "users": "עובדים",
+    "departments": "מחלקות",
+    "logout": "יציאה"
+  },
+  "auth": {
+    "login": "כניסה",
+    "loginPlaceholder": "שם משתמש או אימייל",
+    "password": "סיסמה",
+    "signIn": "כניסה",
+    "invalidCredentials": "שם משתמש או סיסמה שגויים"
+  },
+  "task": {
+    "title": "כותרת",
+    "description": "תיאור",
+    "status": "סטטוס",
+    "priority": "עדיפות",
+    "dueDate": "תאריך יעד",
+    "author": "מחבר",
+    "assignees": "מבצעים",
+    "department": "מחלקה",
+    "create": "יצירת משימה",
+    "edit": "עריכה",
+    "delete": "מחיקה",
+    "history": "היסטוריית שינויים",
+    "attachments": "קבצים מצורפים",
+    "uploadFile": "צרף קובץ",
+    "noAttachments": "אין קבצים מצורפים",
+    "noTasks": "אין משימות",
+    "accept": "קבל משימה",
+    "statuses": {
+      "NEW": "חדש",
+      "IN_PROGRESS": "בתהליך",
+      "REVIEW": "בבדיקה",
+      "DONE": "הושלם",
+      "CANCELLED": "בוטל"
+    },
+    "priorities": {
+      "LOW": "נמוכה",
+      "MEDIUM": "בינונית",
+      "HIGH": "גבוהה",
+      "URGENT": "דחוף"
+    }
+  },
+  "user": {
+    "firstName": "שם פרטי",
+    "lastName": "שם משפחה",
+    "email": "אימייל",
+    "login": "שם משתמש",
+    "role": "תפקיד",
+    "position": "תפקיד בחברה",
+    "department": "מחלקה",
+    "create": "יצירת עובד",
+    "edit": "עריכה",
+    "deactivate": "השבתה",
+    "roles": {
+      "ADMIN": "מנהל מערכת",
+      "MANAGER": "מנהל",
+      "EMPLOYEE": "עובד"
+    }
+  },
+  "dept": {
+    "name": "שם המחלקה",
+    "parent": "מחלקת אב",
+    "head": "ראש מחלקה",
+    "create": "יצירת מחלקה",
+    "edit": "עריכה",
+    "delete": "מחיקה",
+    "noParent": "מחלקת שורש",
+    "dropToRoot": "העבר לשורש",
+    "moveMode": "בחר יעד"
+  },
+  "common": {
+    "save": "שמירה",
+    "cancel": "ביטול",
+    "delete": "מחיקה",
+    "edit": "עריכה",
+    "create": "יצירה",
+    "loading": "טוען...",
+    "error": "שגיאה",
+    "search": "חיפוש",
+    "filter": "סינון",
+    "all": "הכל",
+    "yes": "כן",
+    "no": "לא",
+    "confirm": "אישור"
+  }
+}

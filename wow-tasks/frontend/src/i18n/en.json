@@ -1,0 +1,92 @@
+{
+  "app": { "name": "WOW Tasks" },
+  "nav": {
+    "myTasks": "My Tasks",
+    "deptTasks": "Department Tasks",
+    "users": "Employees",
+    "departments": "Departments",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": "Sign In",
+    "loginPlaceholder": "Login or email",
+    "password": "Password",
+    "signIn": "Sign In",
+    "invalidCredentials": "Invalid login or password"
+  },
+  "task": {
+    "title": "Title",
+    "description": "Description",
+    "status": "Status",
+    "priority": "Priority",
+    "dueDate": "Due Date",
+    "author": "Author",
+    "assignees": "Assignees",
+    "department": "Department",
+    "create": "Create Task",
+    "edit": "Edit",
+    "delete": "Delete",
+    "history": "Change History",
+    "attachments": "Attachments",
+    "uploadFile": "Attach file",
+    "noAttachments": "No attachments",
+    "noTasks": "No tasks",
+    "accept": "Accept task",
+    "statuses": {
+      "NEW": "New",
+      "IN_PROGRESS": "In Progress",
+      "REVIEW": "In Review",
+      "DONE": "Done",
+      "CANCELLED": "Cancelled"
+    },
+    "priorities": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "URGENT": "Urgent"
+    }
+  },
+  "user": {
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "login": "Login",
+    "role": "Role",
+    "position": "Position",
+    "department": "Department",
+    "create": "Create Employee",
+    "edit": "Edit",
+    "deactivate": "Deactivate",
+    "roles": {
+      "ADMIN": "Administrator",
+      "MANAGER": "Manager",
+      "EMPLOYEE": "Employee"
+    }
+  },
+  "dept": {
+    "name": "Department Name",
+    "parent": "Parent Department",
+    "head": "Head",
+    "create": "Create Department",
+    "edit": "Edit",
+    "delete": "Delete",
+    "noParent": "Root department",
+    "dropToRoot": "Move to root",
+    "moveMode": "Select target"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "loading": "Loading...",
+    "error": "Error",
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm"
+  }
+}
