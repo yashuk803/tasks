@@ -1,15 +1,47 @@
+import { useEffect, useRef } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
 import BottomNav from './BottomNav';
+import api from '../../utils/api';
+import { requestPushPermission, onForegroundMessage } from '../../utils/firebase';
 
 export default function AppLayout() {
   const { t, i18n } = useTranslation();
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const pushTokenRef = useRef(null);
+
+  useEffect(() => {
+    let unsubscribe = () => {};
+
+    (async () => {
+      const token = await requestPushPermission();
+      if (!token) return;
+      pushTokenRef.current = token;
+      try {
+        await api.post('/notifications/token', { token });
+      } catch (e) {
+        console.warn('Failed to register push token:', e.message);
+      }
+    })();
+
+    unsubscribe = onForegroundMessage((payload) => {
+      const title = payload.notification?.title || 'WOW Tasks';
+      const body = payload.notification?.body || '';
+      if (Notification.permission === 'granted') {
+        new Notification(title, { body });
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleLogout = async () => {
+    if (pushTokenRef.current) {
+      try { await api.delete('/notifications/token', { data: { token: pushTokenRef.current } }); } catch {}
+    }
     await logout();
     navigate('/login');
   };
