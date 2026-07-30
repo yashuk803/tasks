@@ -61,15 +61,8 @@ export default function App() {
             element={<TaskFormPage />}
           />
 
-          {/* Edit task */}
-          <Route
-            path="/tasks/:id/edit"
-            element={
-              <RequireManager>
-                <TaskFormPage />
-              </RequireManager>
-            }
-          />
+          {/* Edit task — access is enforced by backend canManageTask (author/assignee/manager/admin) */}
+          <Route path="/tasks/:id/edit" element={<TaskFormPage />} />
 
           {/* Users */}
           <Route

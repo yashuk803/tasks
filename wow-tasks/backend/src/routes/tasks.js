@@ -9,6 +9,7 @@ const {
   getTaskVisibilityFilter,
   canAccessTask,
   canManageTask,
+  canChangeTaskStatus,
   canAssignToUser,
   getDescendantDeptIds,
 } = require('../services/visibility');
@@ -31,6 +32,12 @@ const TASK_INCLUDE = {
   },
   department: { select: { id: true, name: true } },
   attachments: true,
+  comments: {
+    include: {
+      user: { select: { id: true, firstName: true, lastName: true } },
+    },
+    orderBy: { createdAt: 'asc' },
+  },
   history: {
     include: {
       user: { select: { id: true, firstName: true, lastName: true } },
@@ -182,7 +189,19 @@ router.put('/:id', authenticate, async (req, res) => {
   if (!task) return res.status(404).json({ error: 'Task not found' });
 
   const canManage = await canManageTask(req.user, task);
-  if (!canManage) return res.status(403).json({ error: 'Forbidden' });
+  if (!canManage) {
+    // Employees who are only assignees (not author/manager) may change status only.
+    const canStatusOnly = await canChangeTaskStatus(req.user, task);
+    if (!canStatusOnly) return res.status(403).json({ error: 'Forbidden' });
+
+    const { title, description, priority, dueDate, departmentId, assigneeIds } = req.body;
+    if (
+      title !== undefined || description !== undefined || priority !== undefined ||
+      dueDate !== undefined || departmentId !== undefined || assigneeIds !== undefined
+    ) {
+      return res.status(403).json({ error: 'You can only change the status of this task' });
+    }
+  }
 
   const { title, description, status, priority, dueDate, departmentId, assigneeIds } = req.body;
 
@@ -313,6 +332,22 @@ router.post('/:id/accept', authenticate, async (req, res) => {
   });
 
   res.json(updatedTask);
+});
+
+// POST /api/tasks/:id/comments — anyone with access to the task can comment
+router.post('/:id/comments', authenticate, async (req, res) => {
+  const accessible = await canAccessTask(req.user, req.params.id);
+  if (!accessible) return res.status(404).json({ error: 'Task not found' });
+
+  const { text } = req.body;
+  if (!text?.trim()) return res.status(400).json({ error: 'Comment text is required' });
+
+  const comment = await prisma.comment.create({
+    data: { taskId: req.params.id, userId: req.user.id, text: text.trim() },
+    include: { user: { select: { id: true, firstName: true, lastName: true } } },
+  });
+
+  res.status(201).json(comment);
 });
 
 // DELETE /api/tasks/:id

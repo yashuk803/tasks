@@ -78,6 +78,16 @@ export function useUploadAttachment() {
   });
 }
 
+export function useAddComment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ taskId, text }) => api.post(`/tasks/${taskId}/comments`, { text }).then((r) => r.data),
+    onSuccess: (_, { taskId }) => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', taskId] });
+    },
+  });
+}
+
 export function useDeleteAttachment() {
   const queryClient = useQueryClient();
   return useMutation({

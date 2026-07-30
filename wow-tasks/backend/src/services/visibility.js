@@ -72,22 +72,31 @@ async function canAccessTask(user, taskId) {
 }
 
 /**
- * Check if user can manage (edit/delete) a specific task.
+ * Check if user can fully manage (edit all fields / delete) a specific task.
+ * Per spec: this is a MANAGER+/ADMIN right (over their dept tree), plus the
+ * task's own author. Plain EMPLOYEE assignees do NOT get full edit rights —
+ * they can only change status and comment (see canChangeTaskStatus below).
  */
 async function canManageTask(user, task) {
   if (user.role === 'ADMIN') return true;
+  if (task.authorId === user.id) return true;
 
   if (user.role === 'MANAGER') {
     const visibleDeptIds = await getVisibleDeptIds(user);
     if (task.departmentId && visibleDeptIds.includes(task.departmentId)) return true;
-    if (task.authorId === user.id) return true;
-    return false;
   }
 
-  // EMPLOYEE: can manage tasks they authored or are assigned to
-  if (task.authorId === user.id) return true;
-  if (task.assignees?.some((a) => a.userId === user.id)) return true;
   return false;
+}
+
+/**
+ * Check if user can at least change the status of a task (and comment on it).
+ * Per spec, an EMPLOYEE who is just an assignee (not author/manager) is limited
+ * to this — everyone who can fully manage a task can also do this.
+ */
+async function canChangeTaskStatus(user, task) {
+  if (await canManageTask(user, task)) return true;
+  return task.assignees?.some((a) => a.userId === user.id) ?? false;
 }
 
 /**
@@ -114,5 +123,6 @@ module.exports = {
   getTaskVisibilityFilter,
   canAccessTask,
   canManageTask,
+  canChangeTaskStatus,
   canAssignToUser,
 };

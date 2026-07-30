@@ -65,6 +65,7 @@ model User {
   assignedTasks  TaskAssignee[]
   taskHistories  TaskHistory[]
   pushTokens     PushToken[]
+  comments       Comment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -87,6 +88,7 @@ model Task {
   assignees   TaskAssignee[]
   history     TaskHistory[]
   attachments Attachment[]
+  comments    Comment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -123,6 +125,16 @@ model Attachment {
   mimetype  String
   size      Int
   url       String
+  createdAt DateTime @default(now())
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  text      String
   createdAt DateTime @default(now())
 }
 

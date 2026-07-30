@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useTask, useUpdateTask, useDeleteTask, useAcceptTask } from '../hooks/useTasks';
+import { useTask, useUpdateTask, useDeleteTask, useAcceptTask, useAddComment } from '../hooks/useTasks';
 import StatusBadge from '../components/tasks/StatusBadge';
 import PriorityBadge from '../components/tasks/PriorityBadge';
 import Spinner from '../components/ui/Spinner';
@@ -26,16 +26,20 @@ export default function TaskDetailPage() {
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
   const acceptTask = useAcceptTask();
+  const addComment = useAddComment();
 
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [commentText, setCommentText] = useState('');
 
   if (isLoading) return <Spinner className="mt-16" />;
   if (!task) return <p className="text-center mt-16 text-gray-400">{t('common.error')}</p>;
 
   const isAssignee = task.assignees?.some((a) => a.user.id === user?.id);
-  const canEdit = isManager() || task.authorId === user?.id || isAssignee;
-  // Deletion is more destructive than editing — only the author or a manager/admin
-  // can delete, matching the backend's canManageTask rule for DELETE.
+  // Full edit (title/description/priority/dueDate/assignees) is a MANAGER+/ADMIN
+  // right, plus the task's own author. A plain EMPLOYEE assignee can only change
+  // status and comment — per spec they don't get the "edit" right.
+  const canFullyEdit = isManager() || task.authorId === user?.id;
+  const canChangeStatus = canFullyEdit || isAssignee;
   const canDelete = isManager() || task.authorId === user?.id;
   const showAcceptButton = isAssignee && task.status === 'NEW' && task.needsAcceptance;
 
@@ -50,6 +54,13 @@ export default function TaskDetailPage() {
   const handleDelete = async () => {
     await deleteTask.mutateAsync(task.id);
     navigate(-1);
+  };
+
+  const handleAddComment = (e) => {
+    e.preventDefault();
+    const text = commentText.trim();
+    if (!text) return;
+    addComment.mutate({ taskId: task.id, text }, { onSuccess: () => setCommentText('') });
   };
 
   return (
@@ -83,7 +94,7 @@ export default function TaskDetailPage() {
       )}
 
       {/* Status change */}
-      {canEdit && (
+      {canChangeStatus && (
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
           {STATUSES.map((s) => (
             <button
@@ -190,10 +201,49 @@ export default function TaskDetailPage() {
         )}
       </div>
 
+      {/* Comments */}
+      <div>
+        <h2 className="font-semibold text-sm text-gray-600 mb-2">{t('task.comments')}</h2>
+
+        {(!task.comments || task.comments.length === 0) && (
+          <p className="text-xs text-gray-400 mb-2">{t('task.noComments')}</p>
+        )}
+
+        {task.comments?.length > 0 && (
+          <div className="flex flex-col gap-2 mb-3">
+            {task.comments.map((c) => (
+              <div key={c.id} className="card py-2 px-3">
+                <div className="flex justify-between items-baseline gap-2">
+                  <span className="text-xs font-medium text-gray-700">
+                    {c.user?.firstName} {c.user?.lastName}
+                  </span>
+                  <span className="text-xs text-gray-400 shrink-0">
+                    {new Date(c.createdAt).toLocaleString()}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap">{c.text}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <form onSubmit={handleAddComment} className="flex gap-2">
+          <input
+            className="input flex-1"
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            placeholder={t('task.commentPlaceholder')}
+          />
+          <button className="btn-secondary shrink-0" disabled={addComment.isPending || !commentText.trim()}>
+            {t('task.addComment')}
+          </button>
+        </form>
+      </div>
+
       {/* Actions */}
-      {(canEdit || canDelete) && (
+      {(canFullyEdit || canDelete) && (
         <div className="flex gap-2 mt-2">
-          {canEdit && (
+          {canFullyEdit && (
             <button className="btn-secondary flex-1" onClick={() => navigate(`/tasks/${id}/edit`)}>
               {t('common.edit')}
             </button>

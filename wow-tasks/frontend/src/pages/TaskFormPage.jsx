@@ -5,6 +5,7 @@ import Select from 'react-select';
 import { useTask, useCreateTask, useUpdateTask, useUploadAttachment, useDeleteAttachment } from '../hooks/useTasks';
 import { useUsers } from '../hooks/useUsers';
 import Spinner from '../components/ui/Spinner';
+import useAuthStore from '../store/authStore';
 
 const STATUSES = ['NEW', 'IN_PROGRESS', 'REVIEW', 'DONE', 'CANCELLED'];
 const PRIORITIES = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
@@ -38,6 +39,7 @@ export default function TaskFormPage() {
   const isEdit = !!id;
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user, isManager } = useAuthStore();
 
   const { data: existing, isLoading: loadingTask } = useTask(id);
   const { data: users = [] } = useUsers();
@@ -54,6 +56,14 @@ export default function TaskFormPage() {
     () => users.map((u) => ({ value: u.id, label: `${u.firstName} ${u.lastName}` })),
     [users]
   );
+
+  useEffect(() => {
+    // Full edit is a MANAGER+/ADMIN right, plus the task's own author — a plain
+    // employee assignee can only change status/comment, from the task detail page.
+    if (isEdit && existing && !(isManager() || existing.authorId === user?.id)) {
+      navigate(`/tasks/${id}`, { replace: true });
+    }
+  }, [isEdit, existing]);
 
   useEffect(() => {
     if (existing) {
@@ -90,13 +100,14 @@ export default function TaskFormPage() {
   };
 
   const handleAssigneesChange = (options) => {
-    let assigneeIds = (options || []).map((o) => o.value);
-    setForm((f) => {
-      if (f.responsibleId && !assigneeIds.includes(f.responsibleId)) {
-        assigneeIds = [...assigneeIds, f.responsibleId];
-      }
-      return { ...f, assigneeIds };
-    });
+    const assigneeIds = (options || []).map((o) => o.value);
+    setForm((f) => ({
+      ...f,
+      assigneeIds,
+      // If the current "responsible" person was removed from assignees, clear it
+      // instead of forcing them back in — otherwise you could never unassign them.
+      responsibleId: assigneeIds.includes(f.responsibleId) ? f.responsibleId : '',
+    }));
   };
 
   const handleSubmit = async (e) => {

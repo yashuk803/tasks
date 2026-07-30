@@ -33,6 +33,10 @@
     "attachments": "קבצים מצורפים",
     "uploadFile": "צרף קובץ",
     "noAttachments": "אין קבצים מצורפים",
+    "comments": "תגובות",
+    "addComment": "שלח",
+    "commentPlaceholder": "כתוב תגובה...",
+    "noComments": "אין תגובות עדיין",
     "noTasks": "אין משימות",
     "accept": "קבל משימה",
     "statuses": {

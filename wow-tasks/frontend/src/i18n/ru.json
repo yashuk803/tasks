@@ -33,6 +33,10 @@
     "attachments": "Вложения",
     "uploadFile": "Прикрепить файл",
     "noAttachments": "Нет вложений",
+    "comments": "Комментарии",
+    "addComment": "Отправить",
+    "commentPlaceholder": "Написать комментарий...",
+    "noComments": "Пока нет комментариев",
     "noTasks": "Задач нет",
     "accept": "Взять в работу",
     "statuses": {

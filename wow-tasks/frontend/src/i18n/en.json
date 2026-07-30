@@ -33,6 +33,10 @@
     "attachments": "Attachments",
     "uploadFile": "Attach file",
     "noAttachments": "No attachments",
+    "comments": "Comments",
+    "addComment": "Send",
+    "commentPlaceholder": "Write a comment...",
+    "noComments": "No comments yet",
     "noTasks": "No tasks",
     "accept": "Accept task",
     "statuses": {
