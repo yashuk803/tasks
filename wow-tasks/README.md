@@ -32,48 +32,42 @@ docker exec wow-tasks-backend npm run db:seed
 
 ## Тестовые учётные записи
 
-| Роль | Логин | Пароль | Отдел |
+Пароль у всех пользователей одинаковый: `Password123`
+
+| Роль | Логин | ФИО | Отдел |
 |---|---|---|---|
-| **Администратор** | `admin` | `Admin2026!` | WOW Corporation |
-| **Руководитель разработки** | `dev_manager` | `Manager2026!` | Разработка |
-| **Руководитель продаж** | `sales_manager` | `Manager2026!` | Продажи |
-| **Тимлид Backend** | `backend_manager` | `Manager2026!` | Backend |
-| **Сотрудник** | `emp_anna` | `Emp2026!` | Backend |
-| **Сотрудник** | `emp_boris` | `Emp2026!` | Backend |
-| **Сотрудник** | `emp_vera` | `Emp2026!` | Mobile |
-| **Сотрудник** | `emp_gena` | `Emp2026!` | Mobile |
-| **Сотрудник** | `emp_daria` | `Emp2026!` | Продажи IL |
-| **Сотрудник** | `emp_elena` | `Emp2026!` | Продажи EU |
-| **Сотрудник** | `emp_ivan` | `Emp2026!` | Административный отдел |
+| **Director (ADMIN)** | `a.sherman` | Артур Шерман | Management |
+| **Director (ADMIN)** | `v.karpun` | Вадим Карпун | Management |
+| **Director (ADMIN)** | `a.bekker` | Алекс Беккер | Management |
+| **DepartmentManager (MANAGER)** | `v.kuznetsov` | Виталий Кузнецов | IPL |
+| **DepartmentManager (MANAGER)** | `o.goncharova` | Оля Гончарова | Sales |
+| **DepartmentManager (MANAGER)** | `a.ferenets` | Артем Ференец | SmartComp |
+| **DepartmentManager (MANAGER)** | `i.volkov` | Игорь Волков | IT |
+| **Employee** | `m.tarantsova` | Мария Таранцова | Sales |
+| **Employee** | `y.kryvulia` | Ярослав Кривуля | IT |
 
 ---
 
 ## Тестовые данные (seed)
 
-### Структура отделов (4 уровня вложенности)
+### Структура отделов (плоская, без вложенности)
 
 ```
-WOW Corporation
-├── Разработка                  ← руководитель: dev_manager
-│   ├── Backend                 ← руководитель: backend_manager
-│   └── Mobile
-├── Продажи                     ← руководитель: sales_manager
-│   ├── Продажи IL
-│   └── Продажи EU
-└── Административный отдел
+Management     ← Артур Шерман, Вадим Карпун, Алекс Беккер (Director)
+IPL            ← руководитель: v.kuznetsov
+Sales          ← руководитель: o.goncharova
+SmartComp      ← руководитель: a.ferenets
+IT             ← руководитель: i.volkov
 ```
 
 ### Пользователи
-- 1 администратор
-- 3 руководителя отделов
-- 7 сотрудников
-- **Итого: 11 пользователей**
+- 3 директора (ADMIN, Management)
+- 4 руководителя отделов (MANAGER)
+- 2 сотрудника (EMPLOYEE)
+- **Итого: 9 пользователей**
 
 ### Задачи
-- **21 задача** распределена по отделам
-- Статусы: `NEW` (9), `IN_PROGRESS` (7), `DONE` (5)
-- Приоритеты: LOW, MEDIUM, HIGH, URGENT
-- Несколько задач с несколькими исполнителями
+- **7 задач**-заглушек распределены по отделам для наглядности после ресида
 
 ---
 
@@ -133,9 +127,11 @@ Push      →  Firebase Cloud Messaging (FCM)
 | `EMPLOYEE` | Только задачи где он автор или исполнитель |
 
 **Пример:**
-- `dev_manager` (руководитель Разработки) видит задачи Разработки, Backend и Mobile
-- `backend_manager` (руководитель Backend) **НЕ видит** задачи отдела Разработка и Mobile
+- `i.volkov` (руководитель IT) видит только задачи отдела IT
+- `o.goncharova` (руководитель Sales) **НЕ видит** задачи отдела IT
 - Попытка получить чужую задачу напрямую через API (по ID) — возвращает `404`, не `403`
+
+*В текущем сиде отделы плоские (без вложенности), но рекурсивная логика видимости в коде сохранена и сработает, если появятся вложенные отделы.*
 
 Реализовано через рекурсивный SQL CTE запрос (`WITH RECURSIVE`).
 
