@@ -34,6 +34,9 @@ export default function TaskDetailPage() {
 
   const isAssignee = task.assignees?.some((a) => a.user.id === user?.id);
   const canEdit = isManager() || task.authorId === user?.id || isAssignee;
+  // Deletion is more destructive than editing — only the author or a manager/admin
+  // can delete, matching the backend's canManageTask rule for DELETE.
+  const canDelete = isManager() || task.authorId === user?.id;
   const showAcceptButton = isAssignee && task.status === 'NEW' && task.needsAcceptance;
 
   const handleStatusChange = (status) => {
@@ -188,14 +191,18 @@ export default function TaskDetailPage() {
       </div>
 
       {/* Actions */}
-      {canEdit && (
+      {(canEdit || canDelete) && (
         <div className="flex gap-2 mt-2">
-          <button className="btn-secondary flex-1" onClick={() => navigate(`/tasks/${id}/edit`)}>
-            {t('common.edit')}
-          </button>
-          <button className="btn-danger" onClick={() => setConfirmDelete(true)}>
-            {t('common.delete')}
-          </button>
+          {canEdit && (
+            <button className="btn-secondary flex-1" onClick={() => navigate(`/tasks/${id}/edit`)}>
+              {t('common.edit')}
+            </button>
+          )}
+          {canDelete && (
+            <button className="btn-danger" onClick={() => setConfirmDelete(true)}>
+              {t('common.delete')}
+            </button>
+          )}
         </div>
       )}
 
