@@ -1,14 +1,15 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useTask, useUpdateTask, useDeleteTask, useAcceptTask, useAddComment } from '../hooks/useTasks';
-import StatusBadge from '../components/tasks/StatusBadge';
+import StatusControl from '../components/tasks/StatusControl';
 import PriorityBadge from '../components/tasks/PriorityBadge';
 import Spinner from '../components/ui/Spinner';
 import Modal from '../components/ui/Modal';
+import Tabs from '../components/ui/Tabs';
 import { useState } from 'react';
 import useAuthStore from '../store/authStore';
 
-const STATUSES = ['NEW', 'IN_PROGRESS', 'REVIEW', 'DONE', 'CANCELLED'];
+const HISTORY_PREVIEW_COUNT = 3;
 
 function formatSize(bytes) {
   if (bytes < 1024) return `${bytes} B`;
@@ -30,6 +31,8 @@ export default function TaskDetailPage() {
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [commentText, setCommentText] = useState('');
+  const [activeTab, setActiveTab] = useState('comments');
+  const [historyExpanded, setHistoryExpanded] = useState(false);
 
   if (isLoading) return <Spinner className="mt-16" />;
   if (!task) return <p className="text-center mt-16 text-gray-400">{t('common.error')}</p>;
@@ -72,8 +75,8 @@ export default function TaskDetailPage() {
       </div>
 
       {/* Badges */}
-      <div className="flex gap-2 flex-wrap">
-        <StatusBadge status={task.status} />
+      <div className="flex gap-2 flex-wrap items-center">
+        <StatusControl status={task.status} editable={canChangeStatus} onChange={handleStatusChange} />
         <PriorityBadge priority={task.priority} />
         {task.dueDate && (
           <span className="badge bg-gray-100 text-gray-600">
@@ -91,23 +94,6 @@ export default function TaskDetailPage() {
         >
           {t('task.accept')}
         </button>
-      )}
-
-      {/* Status change */}
-      {canChangeStatus && (
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-          {STATUSES.map((s) => (
-            <button
-              key={s}
-              onClick={() => handleStatusChange(s)}
-              className={`shrink-0 badge cursor-pointer transition-opacity ${
-                task.status === s ? 'opacity-100 ring-2 ring-brand-dark' : 'opacity-60'
-              } status-${s}`}
-            >
-              {t(`task.statuses.${s}`)}
-            </button>
-          ))}
-        </div>
       )}
 
       {/* Description */}
@@ -141,47 +127,87 @@ export default function TaskDetailPage() {
         )}
       </div>
 
-      {/* History */}
-      {task.history?.length > 0 && (
-        <div>
-          <h2 className="font-semibold text-sm text-gray-600 mb-2">{t('task.history')}</h2>
-          <div className="flex flex-col gap-1">
-            {task.history.map((h) => (
-              <div key={h.id} className="text-xs text-gray-500 flex justify-between gap-2">
-                <span>{h.user?.firstName} — {h.field}: {h.oldValue} → {h.newValue}</span>
-                <span className="shrink-0">{new Date(h.createdAt).toLocaleString()}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Attachments */}
+      {/* Activity: Comments / Attachments / History */}
       <div>
-        <h2 className="font-semibold text-sm text-gray-600 mb-2">{t('task.attachments')}</h2>
+        <Tabs
+          active={activeTab}
+          onChange={setActiveTab}
+          tabs={[
+            { key: 'comments', label: t('task.comments'), count: task.comments?.length ?? 0 },
+            { key: 'attachments', label: t('task.attachments'), count: task.attachments?.length ?? 0 },
+            { key: 'history', label: t('task.history'), count: task.history?.length ?? 0 },
+          ]}
+        />
 
-        {(!task.attachments || task.attachments.length === 0) && (
-          <p className="text-xs text-gray-400 mb-2">{t('task.noAttachments')}</p>
+        {activeTab === 'comments' && (
+          <div className="pt-3">
+            {(!task.comments || task.comments.length === 0) && (
+              <p className="text-xs text-gray-400 mb-2">{t('task.noComments')}</p>
+            )}
+
+            {task.comments?.length > 0 && (
+              <div className="flex flex-col gap-2 mb-3">
+                {task.comments.map((c) => (
+                  <div key={c.id} className="card py-2 px-3">
+                    <div className="flex justify-between items-baseline gap-2">
+                      <span className="text-xs font-medium text-gray-700">
+                        {c.user?.firstName} {c.user?.lastName}
+                      </span>
+                      <span className="text-xs text-gray-400 shrink-0">
+                        {new Date(c.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{c.text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <form onSubmit={handleAddComment} className="flex gap-2">
+              <input
+                className="input flex-1"
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder={t('task.commentPlaceholder')}
+              />
+              <button className="btn-secondary shrink-0" disabled={addComment.isPending || !commentText.trim()}>
+                {t('task.addComment')}
+              </button>
+            </form>
+          </div>
         )}
 
-        {task.attachments?.length > 0 && (
-          <div className="flex flex-col gap-2 mb-3">
-            {task.attachments.map((att) =>
-              att.mimetype.startsWith('image/') ? (
-                <a
-                  key={att.id}
-                  href={`${import.meta.env.VITE_API_URL}${att.url}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img
-                    src={`${import.meta.env.VITE_API_URL}${att.url}`}
-                    alt={att.originalName}
-                    className="rounded-lg object-cover w-full max-h-48 cursor-pointer"
-                  />
-                </a>
-              ) : (
-                <div key={att.id} className="card flex items-center gap-3 py-2 px-3">
+        {activeTab === 'attachments' && (
+          <div className="pt-3">
+            {(!task.attachments || task.attachments.length === 0) && (
+              <p className="text-xs text-gray-400">{t('task.noAttachments')}</p>
+            )}
+
+            {task.attachments?.some((att) => att.mimetype.startsWith('image/')) && (
+              <div className="grid grid-cols-3 gap-2 mb-2">
+                {task.attachments
+                  .filter((att) => att.mimetype.startsWith('image/'))
+                  .map((att) => (
+                    <a
+                      key={att.id}
+                      href={`${import.meta.env.VITE_API_URL}${att.url}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src={`${import.meta.env.VITE_API_URL}${att.url}`}
+                        alt={att.originalName}
+                        className="rounded-lg object-cover w-full aspect-square cursor-pointer"
+                      />
+                    </a>
+                  ))}
+              </div>
+            )}
+
+            {task.attachments
+              ?.filter((att) => !att.mimetype.startsWith('image/'))
+              .map((att) => (
+                <div key={att.id} className="card flex items-center gap-3 py-2 px-3 mb-2">
                   <span className="text-lg">📎</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-700 truncate">{att.originalName}</p>
@@ -195,54 +221,45 @@ export default function TaskDetailPage() {
                     ↓
                   </a>
                 </div>
-              )
+              ))}
+          </div>
+        )}
+
+        {activeTab === 'history' && (
+          <div className="pt-3">
+            {(!task.history || task.history.length === 0) && (
+              <p className="text-xs text-gray-400">{t('task.noHistory')}</p>
+            )}
+
+            {task.history?.length > 0 && (
+              <div className="flex flex-col gap-2">
+                {(historyExpanded ? task.history : task.history.slice(0, HISTORY_PREVIEW_COUNT)).map((h) => (
+                  <div key={h.id} className="text-xs text-gray-500 flex justify-between gap-2">
+                    <span>
+                      {h.user?.firstName} — {h.field}: {h.oldValue} → {h.newValue}
+                    </span>
+                    <span className="shrink-0">{new Date(h.createdAt).toLocaleString()}</span>
+                  </div>
+                ))}
+
+                {task.history.length > HISTORY_PREVIEW_COUNT && (
+                  <button
+                    type="button"
+                    onClick={() => setHistoryExpanded((v) => !v)}
+                    className="text-xs text-brand-dark font-medium text-start mt-1"
+                  >
+                    {historyExpanded ? t('task.showLessHistory') : t('task.showAllHistory')}
+                  </button>
+                )}
+              </div>
             )}
           </div>
         )}
       </div>
 
-      {/* Comments */}
-      <div>
-        <h2 className="font-semibold text-sm text-gray-600 mb-2">{t('task.comments')}</h2>
-
-        {(!task.comments || task.comments.length === 0) && (
-          <p className="text-xs text-gray-400 mb-2">{t('task.noComments')}</p>
-        )}
-
-        {task.comments?.length > 0 && (
-          <div className="flex flex-col gap-2 mb-3">
-            {task.comments.map((c) => (
-              <div key={c.id} className="card py-2 px-3">
-                <div className="flex justify-between items-baseline gap-2">
-                  <span className="text-xs font-medium text-gray-700">
-                    {c.user?.firstName} {c.user?.lastName}
-                  </span>
-                  <span className="text-xs text-gray-400 shrink-0">
-                    {new Date(c.createdAt).toLocaleString()}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-700 whitespace-pre-wrap">{c.text}</p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <form onSubmit={handleAddComment} className="flex gap-2">
-          <input
-            className="input flex-1"
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            placeholder={t('task.commentPlaceholder')}
-          />
-          <button className="btn-secondary shrink-0" disabled={addComment.isPending || !commentText.trim()}>
-            {t('task.addComment')}
-          </button>
-        </form>
-      </div>
-
       {/* Actions */}
       {(canFullyEdit || canDelete) && (
-        <div className="flex gap-2 mt-2">
+        <div className="flex gap-2 mt-2 sticky bottom-0 bg-gray-50 py-2 safe-bottom">
           {canFullyEdit && (
             <button className="btn-secondary flex-1" onClick={() => navigate(`/tasks/${id}/edit`)}>
               {t('common.edit')}
