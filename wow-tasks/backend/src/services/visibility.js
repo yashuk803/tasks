@@ -84,8 +84,10 @@ async function canManageTask(user, task) {
     return false;
   }
 
-  // EMPLOYEE: can only manage their own authored tasks
-  return task.authorId === user.id;
+  // EMPLOYEE: can manage tasks they authored or are assigned to
+  if (task.authorId === user.id) return true;
+  if (task.assignees?.some((a) => a.userId === user.id)) return true;
+  return false;
 }
 
 /**
