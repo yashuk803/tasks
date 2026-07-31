@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import { getMessaging, getToken } from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
@@ -60,10 +60,4 @@ export async function registerPushToken(api) {
     console.warn('Failed to register push token:', e.message);
   }
   return token;
-}
-
-export function onForegroundMessage(callback) {
-  const { messaging } = getFirebase();
-  if (!messaging) return () => {};
-  return onMessage(messaging, callback);
 }

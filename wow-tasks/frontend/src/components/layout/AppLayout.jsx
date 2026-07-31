@@ -6,7 +6,7 @@ import useAuthStore from '../../store/authStore';
 import BottomNav from './BottomNav';
 import NotificationBell from '../notifications/NotificationBell';
 import api from '../../utils/api';
-import { registerPushToken, onForegroundMessage } from '../../utils/firebase';
+import { registerPushToken } from '../../utils/firebase';
 
 export default function AppLayout() {
   const { t, i18n } = useTranslation();
@@ -15,22 +15,10 @@ export default function AppLayout() {
   const pushTokenRef = useRef(null);
 
   useEffect(() => {
-    let unsubscribe = () => {};
-
     (async () => {
       const token = await registerPushToken(api);
       if (token) pushTokenRef.current = token;
     })();
-
-    unsubscribe = onForegroundMessage((payload) => {
-      const title = payload.notification?.title || 'WOW Tasks';
-      const body = payload.notification?.body || '';
-      if (Notification.permission === 'granted') {
-        new Notification(title, { body });
-      }
-    });
-
-    return () => unsubscribe();
   }, []);
 
   const handleLogout = async () => {
