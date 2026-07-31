@@ -31,8 +31,6 @@
     "delete": "מחיקה",
     "history": "היסטוריית שינויים",
     "noHistory": "אין שינויים עדיין",
-    "showAllHistory": "הצג היסטוריה מלאה",
-    "showLessHistory": "הצג פחות",
     "attachments": "קבצים מצורפים",
     "uploadFile": "צרף קובץ",
     "noAttachments": "אין קבצים מצורפים",
@@ -97,6 +95,8 @@
     "all": "הכל",
     "yes": "כן",
     "no": "לא",
-    "confirm": "אישור"
+    "confirm": "אישור",
+    "showMore": "הצג הכל",
+    "showLess": "צמצם"
   }
 }

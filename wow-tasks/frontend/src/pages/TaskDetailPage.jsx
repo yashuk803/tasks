@@ -10,6 +10,7 @@ import { useState } from 'react';
 import useAuthStore from '../store/authStore';
 
 const HISTORY_PREVIEW_COUNT = 3;
+const DESCRIPTION_PREVIEW_LENGTH = 240;
 
 function formatSize(bytes) {
   if (bytes < 1024) return `${bytes} B`;
@@ -33,6 +34,7 @@ export default function TaskDetailPage() {
   const [commentText, setCommentText] = useState('');
   const [activeTab, setActiveTab] = useState('comments');
   const [historyExpanded, setHistoryExpanded] = useState(false);
+  const [descExpanded, setDescExpanded] = useState(false);
 
   if (isLoading) return <Spinner className="mt-16" />;
   if (!task) return <p className="text-center mt-16 text-gray-400">{t('common.error')}</p>;
@@ -66,6 +68,8 @@ export default function TaskDetailPage() {
     addComment.mutate({ taskId: task.id, text }, { onSuccess: () => setCommentText('') });
   };
 
+  const isLongDescription = (task.description?.length ?? 0) > DESCRIPTION_PREVIEW_LENGTH;
+
   return (
     <div className="max-w-2xl mx-auto p-4 flex flex-col gap-4">
       {/* Header */}
@@ -75,13 +79,22 @@ export default function TaskDetailPage() {
       </div>
 
       {/* Badges */}
-      <div className="flex gap-2 flex-wrap items-center">
-        <StatusControl status={task.status} editable={canChangeStatus} onChange={handleStatusChange} />
-        <PriorityBadge priority={task.priority} />
+      <div className="flex gap-4 flex-wrap">
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-gray-400">{t('task.status')}</span>
+          <StatusControl status={task.status} editable={canChangeStatus} onChange={handleStatusChange} />
+        </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-gray-400">{t('task.priority')}</span>
+          <PriorityBadge priority={task.priority} />
+        </div>
         {task.dueDate && (
-          <span className="badge bg-gray-100 text-gray-600">
-            {new Date(task.dueDate).toLocaleDateString()}
-          </span>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-gray-400">{t('task.dueDate')}</span>
+            <span className="badge bg-gray-100 text-gray-600">
+              {new Date(task.dueDate).toLocaleDateString()}
+            </span>
+          </div>
         )}
       </div>
 
@@ -99,7 +112,22 @@ export default function TaskDetailPage() {
       {/* Description */}
       {task.description && (
         <div className="card">
-          <p className="text-sm text-gray-700 whitespace-pre-wrap">{task.description}</p>
+          <p
+            className={`text-sm text-gray-700 whitespace-pre-wrap ${
+              !descExpanded && isLongDescription ? 'line-clamp-4' : ''
+            }`}
+          >
+            {task.description}
+          </p>
+          {isLongDescription && (
+            <button
+              type="button"
+              onClick={() => setDescExpanded((v) => !v)}
+              className="text-xs text-brand-dark font-medium mt-2"
+            >
+              {descExpanded ? t('common.showLess') : t('common.showMore')}
+            </button>
+          )}
         </div>
       )}
 
@@ -248,7 +276,7 @@ export default function TaskDetailPage() {
                     onClick={() => setHistoryExpanded((v) => !v)}
                     className="text-xs text-brand-dark font-medium text-start mt-1"
                   >
-                    {historyExpanded ? t('task.showLessHistory') : t('task.showAllHistory')}
+                    {historyExpanded ? t('common.showLess') : t('common.showMore')}
                   </button>
                 )}
               </div>

@@ -31,8 +31,6 @@
     "delete": "Delete",
     "history": "Change History",
     "noHistory": "No changes yet",
-    "showAllHistory": "Show full history",
-    "showLessHistory": "Show less",
     "attachments": "Attachments",
     "uploadFile": "Attach file",
     "noAttachments": "No attachments",
@@ -97,6 +95,8 @@
     "all": "All",
     "yes": "Yes",
     "no": "No",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "showMore": "Show more",
+    "showLess": "Show less"
   }
 }

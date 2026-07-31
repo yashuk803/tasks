@@ -31,8 +31,6 @@
     "delete": "Удалить",
     "history": "История изменений",
     "noHistory": "Изменений пока нет",
-    "showAllHistory": "Показать всю историю",
-    "showLessHistory": "Свернуть",
     "attachments": "Вложения",
     "uploadFile": "Прикрепить файл",
     "noAttachments": "Нет вложений",
@@ -97,6 +95,8 @@
     "all": "Все",
     "yes": "Да",
     "no": "Нет",
-    "confirm": "Подтвердить"
+    "confirm": "Подтвердить",
+    "showMore": "Показать полностью",
+    "showLess": "Свернуть"
   }
 }
