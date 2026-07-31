@@ -17,8 +17,7 @@ const messaging = firebase.messaging();
 
 // Handle background push notifications
 messaging.onBackgroundMessage((payload) => {
-  const { title, body } = payload.notification || {};
-  const { taskId } = payload.data || {};
+  const { title, body, taskId } = payload.data || {};
 
   self.registration.showNotification(title || 'WOW Tasks', {
     body: body || '',

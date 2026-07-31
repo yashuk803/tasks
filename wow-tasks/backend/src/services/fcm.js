@@ -76,13 +76,19 @@ async function sendPushToUsers(userIds, payload, excludeUserId = null) {
   const tokenList = tokens.map(t => t.token);
 
   try {
+    // Data-only payload (no top-level `notification` field): if a `notification`
+    // field is present, the FCM service worker auto-displays a system notification
+    // in addition to the one we show manually in onBackgroundMessage, causing
+    // duplicate pushes. Keeping this data-only means showNotification() in
+    // firebase-messaging-sw.js is the single place a notification gets shown.
     const result = await fb.messaging().sendEachForMulticast({
       tokens: tokenList,
-      notification: {
+      data: {
+        ...(payload.data || {}),
         title: payload.title,
         body: payload.body,
+        link: payload.link || '/',
       },
-      data: payload.data || {},
       webpush: {
         fcmOptions: { link: payload.link || '/' },
       },
