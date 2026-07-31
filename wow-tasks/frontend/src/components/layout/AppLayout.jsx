@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
 import BottomNav from './BottomNav';
+import NotificationBell from '../notifications/NotificationBell';
 import api from '../../utils/api';
-import { requestPushPermission, onForegroundMessage } from '../../utils/firebase';
+import { registerPushToken, onForegroundMessage } from '../../utils/firebase';
 
 export default function AppLayout() {
   const { t, i18n } = useTranslation();
@@ -17,14 +18,8 @@ export default function AppLayout() {
     let unsubscribe = () => {};
 
     (async () => {
-      const token = await requestPushPermission();
-      if (!token) return;
-      pushTokenRef.current = token;
-      try {
-        await api.post('/notifications/token', { token });
-      } catch (e) {
-        console.warn('Failed to register push token:', e.message);
-      }
+      const token = await registerPushToken(api);
+      if (token) pushTokenRef.current = token;
     })();
 
     unsubscribe = onForegroundMessage((payload) => {
@@ -65,6 +60,8 @@ export default function AppLayout() {
         </button>
 
         <div className="flex items-center gap-3">
+          <NotificationBell />
+
           <button onClick={toggleLang} className="text-xs text-brand-light uppercase">
             {i18n.language}
           </button>

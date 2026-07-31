@@ -49,6 +49,19 @@ export async function requestPushPermission() {
   }
 }
 
+// Requests permission + FCM token, then registers it with the backend.
+// Shared by the initial app-load prompt and the bell's "enable" button.
+export async function registerPushToken(api) {
+  const token = await requestPushPermission();
+  if (!token) return null;
+  try {
+    await api.post('/notifications/token', { token });
+  } catch (e) {
+    console.warn('Failed to register push token:', e.message);
+  }
+  return token;
+}
+
 export function onForegroundMessage(callback) {
   const { messaging } = getFirebase();
   if (!messaging) return () => {};

@@ -40,12 +40,28 @@ function getFirebaseAdmin() {
 }
 
 async function sendPushToUsers(userIds, payload, excludeUserId = null) {
+  const targetIds = [...new Set(userIds.filter(id => id !== excludeUserId))];
+  if (!targetIds.length) return;
+
+  // Persist notification history regardless of push delivery/permission,
+  // so the in-app bell always reflects the full history.
+  await prisma.notification.createMany({
+    data: targetIds.map(userId => ({
+      userId,
+      title: payload.title,
+      body: payload.body,
+      link: payload.link || null,
+      taskId: payload.data?.taskId || null,
+      event: payload.data?.event || null,
+    })),
+  });
+
   const fb = getFirebaseAdmin();
   if (!fb) return; // Push disabled if Firebase not configured
 
   const tokens = await prisma.pushToken.findMany({
     where: {
-      userId: { in: userIds.filter(id => id !== excludeUserId) },
+      userId: { in: targetIds },
     },
     select: { token: true },
   });

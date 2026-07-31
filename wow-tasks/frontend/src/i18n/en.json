@@ -82,6 +82,16 @@
     "dropToRoot": "Move to root",
     "moveMode": "Select target"
   },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet",
+    "markAllRead": "Mark all read",
+    "enablePrompt": "Enable push notifications?",
+    "enableButton": "Enable",
+    "blockedTitle": "Notifications are blocked by the browser",
+    "blockedHint": "It looks like notifications were previously blocked for this site. To re-enable them, open the site settings in your browser (the lock icon next to the address bar), allow notifications, then refresh the page.",
+    "enabled": "Notifications enabled"
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",
