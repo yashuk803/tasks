@@ -44,17 +44,22 @@ async function sendPushToUsers(userIds, payload, excludeUserId = null) {
   if (!targetIds.length) return;
 
   // Persist notification history regardless of push delivery/permission,
-  // so the in-app bell always reflects the full history.
-  await prisma.notification.createMany({
-    data: targetIds.map(userId => ({
-      userId,
-      title: payload.title,
-      body: payload.body,
-      link: payload.link || null,
-      taskId: payload.data?.taskId || null,
-      event: payload.data?.event || null,
-    })),
-  });
+  // so the in-app bell always reflects the full history. Never let a failure
+  // here (e.g. pending migration) break the calling request (task save, etc).
+  try {
+    await prisma.notification.createMany({
+      data: targetIds.map(userId => ({
+        userId,
+        title: payload.title,
+        body: payload.body,
+        link: payload.link || null,
+        taskId: payload.data?.taskId || null,
+        event: payload.data?.event || null,
+      })),
+    });
+  } catch (e) {
+    console.error('Failed to persist notifications:', e.message);
+  }
 
   const fb = getFirebaseAdmin();
   if (!fb) return; // Push disabled if Firebase not configured

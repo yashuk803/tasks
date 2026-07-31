@@ -1,0 +1,28 @@
+# SPA fallback: any request that isn't a real file/directory on disk
+# (e.g. /tasks, /tasks/123, /login) must be served index.html so that
+# React Router can handle the route client-side. Without this, Apache
+# returns a real 404 for any deep link, page refresh, or redirect.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Don't rewrite the file itself
+  RewriteRule ^index\.html$ - [L]
+
+  # Don't rewrite requests for files/directories that actually exist
+  # (JS/CSS bundles, icons, manifest, service workers, etc.)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# The service worker + its bootstrap script + index.html must NEVER be
+# cached by the browser — otherwise, after every deploy, users keep running
+# old cached JS (stale permissions/behavior) until the cache happens to
+# expire. This is why "editing doesn't work" can persist even after we
+# push a fix and re-upload: the browser silently serves the old bundle.
+<IfModule mod_headers.c>
+  <FilesMatch "^(index\.html|sw\.js|registerSW\.js|firebase-messaging-sw\.js|manifest\.webmanifest)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </FilesMatch>
+</IfModule>
