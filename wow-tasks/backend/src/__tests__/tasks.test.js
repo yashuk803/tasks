@@ -58,6 +58,7 @@ jest.mock('../services/fcm', () => ({
 const request = require('supertest');
 const jwt = require('jsonwebtoken');
 const app = require('../index');
+const { notifyTaskEvent } = require('../services/fcm');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -320,6 +321,47 @@ describe('POST /api/tasks', () => {
 
     expect(res.status).toBe(403);
     expect(res.body.error).toMatch(/Cannot assign/);
+  });
+});
+
+// ─────────────────────────────────────────────
+// POST /api/tasks/:id/accept
+// ─────────────────────────────────────────────
+describe('POST /api/tasks/:id/accept', () => {
+  it('notifies the author (push) when the assignee accepts the task', async () => {
+    mockDb.user.findUnique.mockResolvedValue(EMPLOYEE_USER); // authenticate middleware
+
+    const newTask = { ...SAMPLE_TASK, status: 'NEW', authorId: 'mgr-1', assignees: [{ userId: 'emp-1' }] };
+    mockDb.task.findUnique.mockResolvedValue(newTask);
+
+    const updatedTask = { ...newTask, status: 'IN_PROGRESS' };
+    mockDb.task.update.mockResolvedValue(updatedTask);
+    mockDb.taskHistory.create.mockResolvedValue({});
+
+    const res = await request(app)
+      .post('/api/tasks/task-1/accept')
+      .set('Authorization', `Bearer ${makeToken(EMPLOYEE_USER)}`);
+
+    expect(res.status).toBe(200);
+    expect(notifyTaskEvent).toHaveBeenCalledWith(
+      'STATUS_CHANGED',
+      expect.objectContaining({ status: 'IN_PROGRESS' }),
+      expect.objectContaining({ id: 'emp-1' }),
+      ['emp-1'],
+      'mgr-1'
+    );
+  });
+
+  it('returns 403 when a non-assignee tries to accept', async () => {
+    mockDb.user.findUnique.mockResolvedValue(EMPLOYEE_USER);
+    mockDb.task.findUnique.mockResolvedValue({ ...SAMPLE_TASK, status: 'NEW', assignees: [{ userId: 'someone-else' }] });
+
+    const res = await request(app)
+      .post('/api/tasks/task-1/accept')
+      .set('Authorization', `Bearer ${makeToken(EMPLOYEE_USER)}`);
+
+    expect(res.status).toBe(403);
+    expect(notifyTaskEvent).not.toHaveBeenCalled();
   });
 });
 

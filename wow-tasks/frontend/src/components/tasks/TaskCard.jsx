@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { AlertTriangle } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import PriorityBadge from './PriorityBadge';
 
@@ -31,9 +32,9 @@ export default function TaskCard({ task }) {
         <StatusBadge status={task.status} />
 
         {task.dueDate && (
-          <span className={`text-xs ${overdue ? 'text-red-600 font-medium' : 'text-gray-400'}`}>
+          <span className={`text-xs inline-flex items-center gap-1 ${overdue ? 'text-red-600 font-medium' : 'text-gray-400'}`}>
             {new Date(task.dueDate).toLocaleDateString()}
-            {overdue && ' ⚠'}
+            {overdue && <AlertTriangle size={12} />}
           </span>
         )}
 

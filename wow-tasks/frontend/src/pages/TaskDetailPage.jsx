@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { ArrowLeft, Paperclip, Download } from 'lucide-react';
 import { useTask, useUpdateTask, useDeleteTask, useAcceptTask, useAddComment } from '../hooks/useTasks';
 import StatusControl from '../components/tasks/StatusControl';
 import PriorityBadge from '../components/tasks/PriorityBadge';
@@ -74,7 +75,9 @@ export default function TaskDetailPage() {
     <div className="max-w-2xl mx-auto p-4 flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-start gap-2">
-        <button onClick={() => navigate(-1)} className="text-brand-dark text-xl mt-0.5">←</button>
+        <button onClick={() => navigate(-1)} className="text-brand-dark mt-0.5">
+          <ArrowLeft size={22} />
+        </button>
         <h1 className="text-xl font-semibold text-brand-black flex-1">{task.title}</h1>
       </div>
 
@@ -237,7 +240,7 @@ export default function TaskDetailPage() {
               ?.filter((att) => !att.mimetype.startsWith('image/'))
               .map((att) => (
                 <div key={att.id} className="card flex items-center gap-3 py-2 px-3 mb-2">
-                  <span className="text-lg">📎</span>
+                  <Paperclip size={18} className="text-gray-400 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-700 truncate">{att.originalName}</p>
                     <p className="text-xs text-gray-400">{formatSize(att.size)}</p>
@@ -247,7 +250,7 @@ export default function TaskDetailPage() {
                     download={att.originalName}
                     className="btn-secondary text-xs py-1 px-2 shrink-0"
                   >
-                    ↓
+                    <Download size={14} />
                   </a>
                 </div>
               ))}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Plus } from 'lucide-react';
 import { useDepartments, useCreateDepartment, useUpdateDepartment } from '../hooks/useDepartments';
 import { useUsers } from '../hooks/useUsers';
 import DeptTree from '../components/departments/DeptTree';
@@ -75,8 +76,8 @@ export default function DepartmentsPage() {
     <div className="p-3 flex flex-col gap-3">
       <div className="flex justify-between items-center">
         <h1 className="text-lg font-semibold text-brand-dark">{t('nav.departments')}</h1>
-        <button className="btn-primary" onClick={openCreate}>
-          + {t('dept.create')}
+        <button className="btn-primary inline-flex items-center gap-1" onClick={openCreate}>
+          <Plus size={16} /> {t('dept.create')}
         </button>
       </div>
 

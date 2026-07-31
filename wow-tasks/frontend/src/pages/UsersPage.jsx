@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Plus, Users as UsersIcon } from 'lucide-react';
 import { useUsers, useCreateUser, useUpdateUser } from '../hooks/useUsers';
 import { useDepartments } from '../hooks/useDepartments';
 import UserCard from '../components/users/UserCard';
@@ -65,8 +66,8 @@ export default function UsersPage() {
           onChange={(e) => setSearch(e.target.value)}
         />
         {isAdmin() && (
-          <button className="btn-primary shrink-0" onClick={openCreate}>
-            + {t('user.create')}
+          <button className="btn-primary shrink-0 inline-flex items-center gap-1" onClick={openCreate}>
+            <Plus size={16} /> {t('user.create')}
           </button>
         )}
       </div>
@@ -74,7 +75,7 @@ export default function UsersPage() {
       {isLoading && <Spinner className="mt-8" />}
 
       {!isLoading && users.length === 0 && (
-        <EmptyState icon="👥" title={t('common.all')} />
+        <EmptyState icon={<UsersIcon size={40} />} title={t('common.all')} />
       )}
 
       {users.map((u) => (

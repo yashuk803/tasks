@@ -1,36 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Move as IconMove, Pencil as IconEdit, X as IconClose, ChevronDown, ChevronRight } from 'lucide-react';
 
 // ── Icon buttons ────────────────────────────────────────────────────────
-// Real SVG icons instead of unicode glyphs (✦ ✎ ✕): unicode symbols render
-// inconsistently across Android/iOS fonts (sometimes almost invisible) and
-// have no built-in tap area. These give every action a guaranteed-visible
-// icon plus a >=44px touch target (Apple HIG / Material minimum).
-
-const IconMove = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <polyline points="5 9 2 12 5 15" />
-    <polyline points="9 5 12 2 15 5" />
-    <polyline points="15 19 12 22 9 19" />
-    <polyline points="19 9 22 12 19 15" />
-    <line x1="2" y1="12" x2="22" y2="12" />
-    <line x1="12" y1="2" x2="12" y2="22" />
-  </svg>
-);
-
-const IconEdit = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="M12 20h9" />
-    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
-  </svg>
-);
-
-const IconClose = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <line x1="18" y1="6" x2="6" y2="18" />
-    <line x1="6" y1="6" x2="18" y2="18" />
-  </svg>
-);
+// Real SVG icons (lucide-react) instead of unicode glyphs (✦ ✎ ✕): unicode
+// symbols render inconsistently across Android/iOS fonts (sometimes almost
+// invisible) and have no built-in tap area. These give every action a
+// guaranteed-visible icon plus a >=44px touch target (Apple HIG / Material
+// minimum).
 
 function IconButton({ onClick, title, className = '', children }) {
   return (
@@ -193,9 +170,9 @@ function DeptNode({
             type="button"
             onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
             aria-label={open ? t('common.collapse', 'Collapse') : t('common.expand', 'Expand')}
-            className="shrink-0 flex items-center justify-center w-7 h-9 -my-1 text-gray-400 text-sm touch-manipulation"
+            className="shrink-0 flex items-center justify-center w-7 h-9 -my-1 text-gray-400 touch-manipulation"
           >
-            {open ? '▾' : '▸'}
+            {open ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
           </button>
         )}
         {children.length === 0 && <span className="w-7 shrink-0" />}

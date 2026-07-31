@@ -331,6 +331,9 @@ router.post('/:id/accept', authenticate, async (req, res) => {
     return updated;
   });
 
+  const assigneeUserIds = updatedTask.assignees.map(a => a.userId);
+  await notifyTaskEvent('STATUS_CHANGED', updatedTask, req.user, assigneeUserIds, task.authorId);
+
   res.json(updatedTask);
 });
 

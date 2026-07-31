@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Plus, ClipboardList } from 'lucide-react';
 import { useTasks } from '../hooks/useTasks';
 import TaskCard from '../components/tasks/TaskCard';
 import TaskFilters from '../components/tasks/TaskFilters';
@@ -30,7 +31,7 @@ export default function TasksPage({ deptMode = false }) {
 
         {!isLoading && !error && tasks?.length === 0 && (
           <EmptyState
-            icon="📋"
+            icon={<ClipboardList size={40} />}
             title={t('task.noTasks')}
             action={
               <button className="btn-primary" onClick={() => navigate('/tasks/new')}>
@@ -46,11 +47,11 @@ export default function TasksPage({ deptMode = false }) {
       </div>
 
       <button
-        className="fixed bottom-20 end-4 z-30 w-14 h-14 rounded-full bg-brand-teal text-white text-2xl shadow-lg flex items-center justify-center hover:bg-brand-dark transition-colors"
+        className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] end-4 z-30 w-14 h-14 rounded-full bg-brand-teal text-white shadow-lg flex items-center justify-center hover:bg-brand-dark transition-colors"
         onClick={() => navigate('/tasks/new')}
         aria-label={t('task.create')}
       >
-        +
+        <Plus size={28} />
       </button>
     </div>
   );

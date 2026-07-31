@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { ListChecks, ClipboardList, Users, Building2 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 
 export default function BottomNav() {
@@ -15,27 +16,27 @@ export default function BottomNav() {
     <nav className="fixed bottom-0 inset-x-0 z-40 bg-white border-t border-gray-200 safe-bottom">
       <div className="flex justify-around max-w-lg mx-auto">
         <NavLink to="/tasks" className={navClass}>
-          <span className="text-lg">✓</span>
+          <ListChecks size={20} />
           {t('nav.myTasks')}
         </NavLink>
 
         {isManager() && (
           <NavLink to="/dept-tasks" className={navClass}>
-            <span className="text-lg">📋</span>
+            <ClipboardList size={20} />
             {t('nav.deptTasks')}
           </NavLink>
         )}
 
         {isManager() && (
           <NavLink to="/users" className={navClass}>
-            <span className="text-lg">👥</span>
+            <Users size={20} />
             {t('nav.users')}
           </NavLink>
         )}
 
         {isAdmin() && (
           <NavLink to="/departments" className={navClass}>
-            <span className="text-lg">🏢</span>
+            <Building2 size={20} />
             {t('nav.departments')}
           </NavLink>
         )}

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Select from 'react-select';
+import { ArrowLeft, Paperclip, FileText, X } from 'lucide-react';
 import { useTask, useCreateTask, useUpdateTask, useUploadAttachment, useDeleteAttachment } from '../hooks/useTasks';
 import { useUsers } from '../hooks/useUsers';
 import Spinner from '../components/ui/Spinner';
@@ -141,7 +142,9 @@ export default function TaskFormPage() {
   return (
     <div className="max-w-2xl mx-auto p-4">
       <div className="flex items-center gap-2 mb-4">
-        <button onClick={() => navigate(-1)} className="text-brand-dark text-xl">←</button>
+        <button onClick={() => navigate(-1)} className="text-brand-dark">
+          <ArrowLeft size={22} />
+        </button>
         <h1 className="text-xl font-semibold text-brand-black">
           {isEdit ? t('task.edit') : t('task.create')}
         </h1>
@@ -229,7 +232,7 @@ export default function TaskFormPage() {
             <div className="mb-2 flex flex-col gap-1">
               {existing.attachments.map((att) => (
                 <div key={att.id} className="text-xs text-gray-600 flex items-center gap-2">
-                  <span>📎</span>
+                  <Paperclip size={14} className="text-gray-400 shrink-0" />
                   <span className="truncate flex-1">{att.originalName}</span>
                   <button
                     type="button"
@@ -237,14 +240,14 @@ export default function TaskFormPage() {
                     onClick={() => deleteAttachment.mutate({ taskId: id, attachmentId: att.id })}
                     disabled={deleteAttachment.isPending}
                   >
-                    ✕
+                    <X size={14} />
                   </button>
                 </div>
               ))}
             </div>
           )}
           <label className="btn-secondary inline-flex items-center gap-2 cursor-pointer">
-            <span>📎</span>
+            <Paperclip size={16} />
             <span>{t('task.uploadFile')}</span>
             <input
               type="file"
@@ -258,9 +261,11 @@ export default function TaskFormPage() {
             <div className="mt-2 flex flex-col gap-1">
               {files.map((f, i) => (
                 <div key={i} className="text-xs text-gray-600 flex items-center gap-2">
-                  <span>📄</span>
+                  <FileText size={14} className="text-gray-400 shrink-0" />
                   <span className="truncate">{f.name}</span>
-                  <button type="button" className="text-red-400 shrink-0" onClick={() => setFiles(files.filter((_, j) => j !== i))}>✕</button>
+                  <button type="button" className="text-red-400 shrink-0" onClick={() => setFiles(files.filter((_, j) => j !== i))}>
+                    <X size={14} />
+                  </button>
                 </div>
               ))}
             </div>
