@@ -112,8 +112,9 @@ export default function TaskDetailPage() {
       {/* Description */}
       {task.description && (
         <div className="card">
+          <span className="text-xs text-gray-400">{t('task.description')}</span>
           <p
-            className={`text-sm text-gray-700 whitespace-pre-wrap ${
+            className={`text-sm text-gray-700 whitespace-pre-wrap mt-1 ${
               !descExpanded && isLongDescription ? 'line-clamp-4' : ''
             }`}
           >
