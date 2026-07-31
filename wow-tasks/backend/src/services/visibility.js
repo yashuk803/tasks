@@ -100,6 +100,30 @@ async function canChangeTaskStatus(user, task) {
 }
 
 /**
+ * Build Prisma WHERE clause for users selectable as a task assignee.
+ * Per spec: any user can assign a task to someone at their level or above in the
+ * hierarchy (MANAGER/ADMIN roles, company-wide), in addition to whoever is already
+ * within their direct management scope (own dept for EMPLOYEE, own subtree for
+ * MANAGER). Assignments outside direct management scope require the assignee's
+ * acceptance (see needsAcceptance in routes/tasks.js) — this filter only controls
+ * who shows up as selectable, not whether acceptance is needed.
+ */
+async function getAssignableUsersFilter(user) {
+  if (user.role === 'ADMIN') return {};
+
+  const or = [{ role: { in: ['MANAGER', 'ADMIN'] } }];
+
+  if (user.role === 'MANAGER') {
+    const visibleDeptIds = await getVisibleDeptIds(user);
+    if (visibleDeptIds?.length) or.push({ departmentId: { in: visibleDeptIds } });
+  } else if (user.departmentId) {
+    or.push({ departmentId: user.departmentId });
+  }
+
+  return { OR: or };
+}
+
+/**
  * Check if a user can assign tasks to another user.
  * Can assign to self or anyone below in hierarchy.
  */
@@ -121,6 +145,7 @@ module.exports = {
   getDescendantDeptIds,
   getVisibleDeptIds,
   getTaskVisibilityFilter,
+  getAssignableUsersFilter,
   canAccessTask,
   canManageTask,
   canChangeTaskStatus,

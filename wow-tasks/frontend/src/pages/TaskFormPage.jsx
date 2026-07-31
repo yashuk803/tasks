@@ -42,7 +42,7 @@ export default function TaskFormPage() {
   const { user, isManager } = useAuthStore();
 
   const { data: existing, isLoading: loadingTask } = useTask(id);
-  const { data: users = [] } = useUsers();
+  const { data: users = [] } = useUsers({ assignable: true });
   const createTask = useCreateTask();
   const updateTask = useUpdateTask();
   const uploadAttachment = useUploadAttachment();

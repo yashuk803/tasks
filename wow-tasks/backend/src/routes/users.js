@@ -2,16 +2,20 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const prisma = require('../utils/prisma');
 const { authenticate, requireRole } = require('../middleware/auth');
-const { getVisibleDeptIds } = require('../services/visibility');
+const { getVisibleDeptIds, getAssignableUsersFilter } = require('../services/visibility');
 
 const router = express.Router();
 
 // GET /api/users — list users visible to current user
+// Pass ?assignable=true to instead get users selectable as a task assignee
+// (own dept/subtree + all MANAGER/ADMIN company-wide — see getAssignableUsersFilter).
 router.get('/', authenticate, async (req, res) => {
-  const { departmentId, role, search, active } = req.query;
+  const { departmentId, role, search, active, assignable } = req.query;
 
   let deptFilter = {};
-  if (req.user.role !== 'ADMIN') {
+  if (assignable === 'true') {
+    deptFilter = await getAssignableUsersFilter(req.user);
+  } else if (req.user.role !== 'ADMIN') {
     const visibleDeptIds = await getVisibleDeptIds(req.user);
     deptFilter = { departmentId: { in: visibleDeptIds } };
   }

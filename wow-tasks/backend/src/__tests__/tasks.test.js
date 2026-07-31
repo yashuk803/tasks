@@ -278,12 +278,20 @@ describe('POST /api/tasks', () => {
     expect(res.body.assignees).toHaveLength(2);
   });
 
-  it('EMPLOYEE cannot assign task to another user', async () => {
+  it('EMPLOYEE can assign task to a peer/superior — allowed, pending their acceptance', async () => {
     mockDb.user.findUnique
       .mockResolvedValueOnce(EMPLOYEE_USER) // authenticate middleware
       .mockResolvedValueOnce({ id: 'emp-2', departmentId: 'dept-other' }); // canAssignToUser target lookup
 
-    // No $queryRaw needed for EMPLOYEE (returns false immediately for others)
+    // canAssignToUser returns false for EMPLOYEE→other (not downward), but since the
+    // target exists, the assignment is still created — the assignee will see
+    // needsAcceptance: true on GET /api/tasks/:id and must accept it.
+    const taskWithAssignee = {
+      ...SAMPLE_TASK,
+      assignees: [{ userId: 'emp-2', user: { id: 'emp-2' } }],
+    };
+    mockDb.task.create.mockResolvedValue(taskWithAssignee);
+    mockDb.taskHistory.create.mockResolvedValue({});
 
     const res = await request(app)
       .post('/api/tasks')
@@ -291,6 +299,23 @@ describe('POST /api/tasks', () => {
       .send({
         title: 'Trying to assign',
         assigneeIds: ['emp-2'],
+      });
+
+    expect(res.status).toBe(201);
+    expect(res.body.assignees).toHaveLength(1);
+  });
+
+  it('POST /api/tasks still rejects assignment to a non-existent user', async () => {
+    mockDb.user.findUnique
+      .mockResolvedValueOnce(EMPLOYEE_USER) // authenticate middleware
+      .mockResolvedValueOnce(null); // canAssignToUser target lookup — user does not exist
+
+    const res = await request(app)
+      .post('/api/tasks')
+      .set('Authorization', `Bearer ${makeToken(EMPLOYEE_USER)}`)
+      .send({
+        title: 'Trying to assign',
+        assigneeIds: ['ghost-user'],
       });
 
     expect(res.status).toBe(403);

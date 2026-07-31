@@ -28,6 +28,7 @@ jest.mock('../utils/prisma', () => mockDb);
 const {
   getTaskVisibilityFilter,
   getVisibleDeptIds,
+  getAssignableUsersFilter,
   canAccessTask,
   canManageTask,
   canAssignToUser,
@@ -154,6 +155,36 @@ describe('getVisibleDeptIds', () => {
     const after = await getVisibleDeptIds(manager);
     expect(after).toContain('dept-c');
     expect(after).not.toContain('dept-b'); // dept-b was moved away
+  });
+});
+
+// ─────────────────────────────────────────────
+// getAssignableUsersFilter
+// ─────────────────────────────────────────────
+describe('getAssignableUsersFilter', () => {
+  it('ADMIN: returns empty filter (can select anyone)', async () => {
+    const filter = await getAssignableUsersFilter(makeUser({ role: 'ADMIN' }));
+    expect(filter).toEqual({});
+  });
+
+  it('EMPLOYEE: can select own dept members plus all MANAGER/ADMIN company-wide', async () => {
+    const emp = makeUser({ id: 'emp-1', role: 'EMPLOYEE', departmentId: 'dept-a' });
+    const filter = await getAssignableUsersFilter(emp);
+
+    expect(filter).toHaveProperty('OR');
+    expect(filter.OR).toContainEqual({ role: { in: ['MANAGER', 'ADMIN'] } });
+    expect(filter.OR).toContainEqual({ departmentId: 'dept-a' });
+  });
+
+  it('MANAGER: can select own subtree plus all MANAGER/ADMIN company-wide', async () => {
+    mockDb.$queryRaw.mockResolvedValue([{ id: 'dept-b' }, { id: 'dept-c' }]);
+    const manager = makeUser({ id: 'mgr-1', role: 'MANAGER', headOfDept: { id: 'dept-b' } });
+    const filter = await getAssignableUsersFilter(manager);
+
+    expect(filter).toHaveProperty('OR');
+    expect(filter.OR).toContainEqual({ role: { in: ['MANAGER', 'ADMIN'] } });
+    const deptCondition = filter.OR.find((c) => c.departmentId);
+    expect(deptCondition.departmentId.in).toEqual(expect.arrayContaining(['dept-b', 'dept-c']));
   });
 });
 
